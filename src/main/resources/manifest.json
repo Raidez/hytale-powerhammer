@@ -1,0 +1,20 @@
+{
+  "Group": "dev.raidez",
+  "Name": "PowerHammer",
+  "Version": "1.0.0",
+  "Description": "Bring more power to your hammers!",
+  "Authors": [
+    {
+      "Name": "Raidez",
+      "Email": "",
+      "Url": ""
+    }
+  ],
+  "Website": "",
+  "ServerVersion": "",
+  "Dependencies": {},
+  "OptionalDependencies": {},
+  "DisabledByDefault": false,
+  "IncludesAssetPack": true,
+  "Main": "dev.raidez.PowerHammerPlugin"
+}

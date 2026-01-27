@@ -1,0 +1,47 @@
+{
+  "Model": "Items/Tools/Hammer/Iron.blockymodel",
+  "Texture": "Items/Tools/Hammer/Iron_Texture.png",
+  "Icon": "Icons/ItemsGenerated/PowerHammer_Item.png",
+  "IconProperties": {
+    "Scale": 0.5,
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ],
+    "Translation": [
+      -15,
+      -29
+    ]
+  },
+  "Tags": {
+    "Type": [
+      "Tool"
+    ]
+  },
+  "Categories": [
+    "Items.Tools"
+  ],
+  "MaxStack": 1,
+  "Quality": "Developer",
+  "Set": "Tool_Iron",
+  "ItemSoundSetId": "ISS_Weapons_Wood",
+  "PlayerAnimationsId": "Pickaxe",
+  "TranslationProperties": {
+    "Name": "items.powerhammer.name",
+    "Description": "items.powerhammer.desc"
+  },
+  "Interactions": {
+    "Primary": {
+      "Interactions": [
+        {
+          "Type": "PowerHammer",
+          "RunTime": 0.1,
+          "Effects": {
+            "ItemAnimationId": "Mine"
+          }
+        }
+      ]
+    }
+  }
+}
