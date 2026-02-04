@@ -34,11 +34,14 @@
         "Primary": {
             "Interactions": [
                 {
-                    "Type": "PowerHammer",
-                    "RunTime": 0.1,
-                    "Effects": {
-                        "ItemAnimationId": "Mine"
-                    }
+                    "Type": "SwapBlock"
+                }
+            ]
+        },
+        "Secondary": {
+            "Interactions": [
+                {
+                    "Type": "CycleBlockGroup"
                 }
             ]
         }

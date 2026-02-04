@@ -4,22 +4,34 @@ import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.Interaction;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
+import com.hypixel.hytale.server.core.util.Config;
 
-import dev.raidez.interactions.PowerHammerInteraction;
+import dev.raidez.interactions.SwapBlockInteraction;
 
 public class PowerHammerPlugin extends JavaPlugin {
 
-    public final static HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
+    public static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
+
+    private final Config<PowerHammerConfig> config = withConfig("PowerHammerConfig", PowerHammerConfig.CODEC);
+
+    private static PowerHammerPlugin instance;
 
     public PowerHammerPlugin(JavaPluginInit init) {
         super(init);
+        instance = this;
     }
 
     @Override
     protected void setup() {
-        LOGGER.atInfo().log("Setup Power Hammer plugin!");
+        LOGGER.atInfo().log("PowerHammerPlugin is starting up!");
+        config.save();
+
         getCodecRegistry(Interaction.CODEC)
-                .register("PowerHammer", PowerHammerInteraction.class, PowerHammerInteraction.CODEC);
+                .register("SwapBlock", SwapBlockInteraction.class, SwapBlockInteraction.CODEC);
+    }
+
+    public static PowerHammerConfig getConfig() {
+        return instance.config.get();
     }
 
 }
