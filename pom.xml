@@ -16,15 +16,15 @@
 
     <repositories>
         <!-- Hytale release repository -->
-        <!-- <repository>
+        <repository>
             <id>hytale-release</id>
             <url>https://maven.hytale.com/release</url>
-        </repository> -->
+        </repository>
         <!-- Hytale pre-release repository -->
-        <repository>
+        <!-- <repository>
             <id>hytale-pre-release</id>
             <url>https://maven.hytale.com/pre-release</url>
-        </repository>
+        </repository> -->
     </repositories>
 
     <dependencies>

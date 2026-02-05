@@ -59,4 +59,5 @@ it's use regular expressions to match block id :
 8. (done) Display a message/popup in case of error (no block in hotbar, etc.).
 9. (required) In creative mode, allow swapping without changing quantity.
 10. (required) In creative mode, don't drop durability when swapping.
+11. (done) Take item from the inventory instead of the hotbar when swapping.
 
