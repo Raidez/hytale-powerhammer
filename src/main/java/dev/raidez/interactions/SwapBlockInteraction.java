@@ -6,10 +6,11 @@ import java.util.stream.Stream;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
-import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.protocol.BlockSoundEvent;
 import com.hypixel.hytale.protocol.InteractionType;
+import com.hypixel.hytale.protocol.packets.interface_.NotificationStyle;
+import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.asset.type.blocksound.config.BlockSoundSet;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.entity.InteractionContext;
@@ -18,9 +19,11 @@ import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.CooldownHandler;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.client.SimpleBlockInteraction;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.SoundUtil;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.core.util.NotificationUtil;
 
 import dev.raidez.PowerHammerConfig;
 import dev.raidez.PowerHammerPlugin;
@@ -29,16 +32,13 @@ public class SwapBlockInteraction extends SimpleBlockInteraction {
 
     private final PowerHammerConfig config;
 
-    private final HytaleLogger logger;
-
     public static final BuilderCodec<SwapBlockInteraction> CODEC = BuilderCodec.builder(
             SwapBlockInteraction.class,
-            () -> new SwapBlockInteraction(PowerHammerPlugin.getConfig(), PowerHammerPlugin.LOGGER),
+            () -> new SwapBlockInteraction(PowerHammerPlugin.getConfig()),
             SimpleBlockInteraction.CODEC).build();
 
-    public SwapBlockInteraction(PowerHammerConfig config, HytaleLogger logger) {
+    public SwapBlockInteraction(PowerHammerConfig config) {
         this.config = config;
-        this.logger = logger;
     }
 
     @Override
@@ -57,11 +57,15 @@ public class SwapBlockInteraction extends SimpleBlockInteraction {
         Player player = store.getComponent(ref, Player.getComponentType());
         ItemContainer hotbar = player.getInventory().getHotbar();
         short heldItemSlot = interactionContext.getHeldItemSlot();
+        PlayerRef playerRef = store.getComponent(ref, PlayerRef.getComponentType());
 
         // 1. Get the target block
         BlockType targetBlockType = world.getBlockType(targetBlock);
         if (targetBlockType == null) {
-            logger.atWarning().log("Target block type is null!");
+            NotificationUtil.sendNotification(
+                    playerRef.getPacketHandler(),
+                    Message.raw("Target block type is null!"),
+                    NotificationStyle.Warning);
             return;
         }
 
@@ -69,14 +73,20 @@ public class SwapBlockInteraction extends SimpleBlockInteraction {
         String targetBlockId = targetBlockType.getId();
         String blockPattern = isBlockSwappable(targetBlockId);
         if (blockPattern == null) {
-            logger.atWarning().log("Target block is not swappable!");
+            NotificationUtil.sendNotification(
+                    playerRef.getPacketHandler(),
+                    Message.raw("Target block is not swappable!"),
+                    NotificationStyle.Warning);
             return;
         }
 
         // 3. Get the closest matching block from the hotbar
         short matchedSlot = findClosestMatchingBlock(hotbar, heldItemSlot, blockPattern, targetBlockId);
         if (matchedSlot == -1) {
-            logger.atWarning().log("No matching block found in hotbar!");
+            NotificationUtil.sendNotification(
+                    playerRef.getPacketHandler(),
+                    Message.raw("No matching block found in hotbar!"),
+                    NotificationStyle.Warning);
             return;
         }
 
@@ -90,9 +100,8 @@ public class SwapBlockInteraction extends SimpleBlockInteraction {
         hotbar.setItemStackForSlot(matchedSlot, matchedItemStack.withQuantity(quantity - 1));
 
         // 5.2. Increase quantity of the swapped-out block
-        // TODO: This create a new stack even if the block already exists in the hotbar,
-        // ideally we should merge it with existing stack if possible
-        hotbar.addItemStack(new ItemStack(targetBlockId));
+        var inventory = player.getInventory().getCombinedHotbarFirst();
+        inventory.addItemStack(new ItemStack(targetBlockId));
 
         // 5.3. Apply durability damage to the tool if applicable
         double durabilityLoss = heldItemStack.getItem().getDurabilityLossOnHit();
@@ -148,7 +157,7 @@ public class SwapBlockInteraction extends SimpleBlockInteraction {
      * @param targetBlockId
      * @return Matched item slot or -1 if not found
      */
-    private Short findClosestMatchingBlock(
+    private short findClosestMatchingBlock(
             ItemContainer storage,
             short itemSlot,
             String blockPattern,

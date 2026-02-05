@@ -56,5 +56,7 @@ it's use regular expressions to match block id :
 5. (negligible) Add a custom 3D model for the Power Hammer.
 6. (negligible) Add custom sounds when using the Power Hammer.
 7. (optional) Add a brush feature to swap multiple blocks at once.
-8. (required) Display a message/popup in case of error (no block in hotbar, etc.).
+8. (done) Display a message/popup in case of error (no block in hotbar, etc.).
+9. (required) In creative mode, allow swapping without changing quantity.
+10. (required) In creative mode, don't drop durability when swapping.
 

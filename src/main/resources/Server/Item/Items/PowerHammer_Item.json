@@ -75,5 +75,5 @@
     "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
     "Quality": "Uncommon",
     "MaxDurability": 500,
-    "DurabilityLossOnHit": 0
+    "DurabilityLossOnHit": 1
 }
