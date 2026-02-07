@@ -26,6 +26,7 @@ public class PowerHammerConfig {
             "Wood_.+_Roof_Hollow",
             "Wood_.+_Roof_Shallow",
             "Wood_.+_Roof_Steep",
+            "Rock_.+_Brick(_(Decorative|Ornate|Smooth))?",
     };
 
     public String[] getSwapSet() {

@@ -42,23 +42,24 @@ it's use regular expressions to match block id :
         "Wood_.+_Roof_Flat",
         "Wood_.+_Roof_Hollow",
         "Wood_.+_Roof_Shallow",
-        "Wood_.+_Roof_Steep"
+        "Wood_.+_Roof_Steep",
+        "Rock_.+_Brick(_(Decorative|Ornate|Smooth))?"
     ]
 }
 ```
 
 ## Future Plans
 
-1. (required) Add the ability to swap *stone* blocks and other types.
-2. (done) Create a configuration to customize swappable block types.
-3. (done) Add block cycle (default hammer behavior) on right-click.
-4. (done) Preserve block orientation when swapping.
-5. (negligible) Add a custom 3D model for the Power Hammer.
-6. (negligible) Add custom sounds when using the Power Hammer.
-7. (optional) Add a brush feature to swap multiple blocks at once.
-8. (done) Display a message/popup in case of error (no block in hotbar, etc.).
-9. (required) In creative mode, allow swapping without changing quantity.
-10. (required) In creative mode, don't drop durability when swapping.
-11. (done) Take item from the inventory instead of the hotbar when swapping.
-12. (required) Support stairs specials orientations (corner).
-
+1. (required) Create a v2 with a custom UI to select block cycles.
+2. (done) Add the ability to swap *stone* blocks and other types.
+3. (done) Create a configuration to customize swappable block types.
+4. (done) Add block cycle (default hammer behavior) on right-click.
+5. (done) Preserve block orientation when swapping.
+6. (negligible) Add a custom 3D model for the Power Hammer.
+7. (negligible) Add custom sounds when using the Power Hammer.
+8. ~~(abandoned) Add a brush feature to swap multiple blocks at once.~~
+9. (done) Display a message/popup in case of error (no block in hotbar, etc.).
+10. (done) In creative mode, allow swapping without changing quantity.
+11. (done) In creative mode, don't drop durability when swapping.
+12. (done) Take item from the inventory instead of the hotbar when swapping.
+13. (required) Support stairs specials orientations (corner).

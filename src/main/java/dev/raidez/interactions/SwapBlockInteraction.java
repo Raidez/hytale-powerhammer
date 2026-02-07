@@ -9,6 +9,7 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.protocol.BlockSoundEvent;
+import com.hypixel.hytale.protocol.GameMode;
 import com.hypixel.hytale.protocol.InteractionType;
 import com.hypixel.hytale.protocol.packets.interface_.NotificationStyle;
 import com.hypixel.hytale.server.core.Message;
@@ -61,6 +62,7 @@ public class SwapBlockInteraction extends SimpleBlockInteraction {
         PlayerRef playerRef = store.getComponent(ref, PlayerRef.getComponentType());
         ItemContainer hotbar = player.getInventory().getHotbar();
         var storage = player.getInventory().getCombinedEverything();
+        boolean isCreativeMode = GameMode.Creative.equals(player.getGameMode());
 
         // 1. Get the target block
         BlockType targetBlockType = world.getBlockType(targetBlock);
@@ -99,16 +101,18 @@ public class SwapBlockInteraction extends SimpleBlockInteraction {
         swapBlock(world, targetBlock, matchedItemStack.getBlockKey());
 
         // 5. Update states (block quantity, tool durability, etc.)
-        // 5.1. Decrease quantity of the swapped-in block
-        int quantity = matchedItemStack.getQuantity();
-        hotbar.setItemStackForSlot(matchedSlot, matchedItemStack.withQuantity(quantity - 1));
+        if (!isCreativeMode) {
+            // 5.1. Decrease quantity of the swapped-in block
+            int quantity = matchedItemStack.getQuantity();
+            hotbar.setItemStackForSlot(matchedSlot, matchedItemStack.withQuantity(quantity - 1));
 
-        // 5.2. Increase quantity of the swapped-out block
-        storage.addItemStack(new ItemStack(targetBlockId));
+            // 5.2. Increase quantity of the swapped-out block
+            storage.addItemStack(new ItemStack(targetBlockId));
 
-        // 5.3. Apply durability damage to the tool if applicable
-        double durabilityLoss = heldItemStack.getItem().getDurabilityLossOnHit();
-        player.updateItemStackDurability(ref, heldItemStack, hotbar, heldItemSlot, durabilityLoss, commandBuffer);
+            // 5.3. Apply durability damage to the tool if applicable
+            double durabilityLoss = heldItemStack.getItem().getDurabilityLossOnHit();
+            player.updateItemStackDurability(ref, heldItemStack, hotbar, heldItemSlot, durabilityLoss, commandBuffer);
+        }
 
         // 6. Play sound effect
         playSoundEffect(ref, world, targetBlock, targetBlockType, commandBuffer);
