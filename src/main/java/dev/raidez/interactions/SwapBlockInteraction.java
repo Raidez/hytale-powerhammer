@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.protocol.BlockSoundEvent;
 import com.hypixel.hytale.protocol.InteractionType;
@@ -22,6 +23,7 @@ import com.hypixel.hytale.server.core.modules.interaction.interaction.config.cli
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.SoundUtil;
 import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.util.NotificationUtil;
 
@@ -57,9 +59,8 @@ public class SwapBlockInteraction extends SimpleBlockInteraction {
         Player player = store.getComponent(ref, Player.getComponentType());
         short heldItemSlot = interactionContext.getHeldItemSlot();
         PlayerRef playerRef = store.getComponent(ref, PlayerRef.getComponentType());
-        var inventory = player.getInventory().getCombinedHotbarFirst();
-        // int rotation = world.getBlockRotationIndex(targetBlock.x, targetBlock.y,
-        // targetBlock.z);
+        ItemContainer hotbar = player.getInventory().getHotbar();
+        var storage = player.getInventory().getCombinedEverything();
 
         // 1. Get the target block
         BlockType targetBlockType = world.getBlockType(targetBlock);
@@ -72,6 +73,7 @@ public class SwapBlockInteraction extends SimpleBlockInteraction {
         }
 
         // 2. Check if the block is swappable
+        // String targetBlockId = targetBlockType.getDefaultStateKey();
         String targetBlockId = targetBlockType.getId();
         String blockPattern = isBlockSwappable(targetBlockId);
         if (blockPattern == null) {
@@ -83,7 +85,7 @@ public class SwapBlockInteraction extends SimpleBlockInteraction {
         }
 
         // 3. Get the closest matching block from the hotbar
-        short matchedSlot = findClosestMatchingBlock(inventory, heldItemSlot, blockPattern, targetBlockId);
+        short matchedSlot = findClosestMatchingBlock(hotbar, heldItemSlot, blockPattern, targetBlockId);
         if (matchedSlot == -1) {
             NotificationUtil.sendNotification(
                     playerRef.getPacketHandler(),
@@ -93,24 +95,48 @@ public class SwapBlockInteraction extends SimpleBlockInteraction {
         }
 
         // 4. Swap the blocks
-        ItemStack matchedItemStack = inventory.getItemStack(matchedSlot);
-        world.setBlock(targetBlock.x, targetBlock.y, targetBlock.z, matchedItemStack.getBlockKey());
+        ItemStack matchedItemStack = hotbar.getItemStack(matchedSlot);
+        swapBlock(world, targetBlock, matchedItemStack.getBlockKey());
 
         // 5. Update states (block quantity, tool durability, etc.)
         // 5.1. Decrease quantity of the swapped-in block
         int quantity = matchedItemStack.getQuantity();
-        inventory.setItemStackForSlot(matchedSlot, matchedItemStack.withQuantity(quantity - 1));
+        hotbar.setItemStackForSlot(matchedSlot, matchedItemStack.withQuantity(quantity - 1));
 
         // 5.2. Increase quantity of the swapped-out block
-        inventory.addItemStack(new ItemStack(targetBlockId));
+        storage.addItemStack(new ItemStack(targetBlockId));
 
         // 5.3. Apply durability damage to the tool if applicable
         double durabilityLoss = heldItemStack.getItem().getDurabilityLossOnHit();
-        player.updateItemStackDurability(ref, heldItemStack, inventory, heldItemSlot, durabilityLoss, commandBuffer);
+        player.updateItemStackDurability(ref, heldItemStack, hotbar, heldItemSlot, durabilityLoss, commandBuffer);
 
         // 6. Play sound effect
         playSoundEffect(ref, world, targetBlock, targetBlockType, commandBuffer);
 
+    }
+
+    // #region
+
+    /**
+     * Swap the target block with the selected block
+     * 
+     * @param world
+     * @param targetBlock
+     * @param blockId
+     */
+    @SuppressWarnings({ "removal", "deprecation" })
+    private void swapBlock(World world, Vector3i targetBlock, String blockId) {
+        long chunkIndex = ChunkUtil.indexChunkFromBlock(targetBlock.x, targetBlock.z);
+        WorldChunk worldChunk = world.getChunk(chunkIndex);
+
+        int index = BlockType.getAssetMap().getIndex(blockId);
+        BlockType blockType = BlockType.getAssetMap().getAsset(index);
+
+        int rotation = worldChunk.getRotationIndex(targetBlock.x, targetBlock.y, targetBlock.z);
+        int filler = worldChunk.getBlockChunk().getSectionAtBlockY(targetBlock.y)
+                .getFiller(targetBlock.x, targetBlock.y, targetBlock.z);
+
+        worldChunk.setBlock(targetBlock.x, targetBlock.y, targetBlock.z, index, blockType, rotation, filler, 0);
     }
 
     /**
@@ -199,6 +225,8 @@ public class SwapBlockInteraction extends SimpleBlockInteraction {
                 .findFirst()
                 .orElse(null);
     }
+
+    // #endregion
 
     @Override
     protected void simulateInteractWithBlock(
