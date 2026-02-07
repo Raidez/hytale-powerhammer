@@ -22,7 +22,7 @@ This works with any block defined allowed by the game:
 
 Here is a short demonstration video:
 
-![Power Hammer Demo](noop.gif)
+![Power Hammer Demo](doc/demo.gif)
 
 ## Configuration
 
