@@ -63,3 +63,4 @@ it's use regular expressions to match block id :
 11. (done) In creative mode, don't drop durability when swapping.
 12. (done) Take item from the inventory instead of the hotbar when swapping.
 13. (required) Support stairs specials orientations (corner).
+14. (done) Add the ability to rotate blocks (no limitation).
