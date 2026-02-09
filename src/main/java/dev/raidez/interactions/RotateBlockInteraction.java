@@ -1,5 +1,7 @@
 package dev.raidez.interactions;
 
+import java.util.Optional;
+
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.codecs.EnumCodec;
@@ -14,6 +16,7 @@ import com.hypixel.hytale.server.core.asset.type.blocktype.config.Rotation;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.VariantRotation;
 import com.hypixel.hytale.server.core.entity.InteractionContext;
+import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.CooldownHandler;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.client.SimpleBlockInteraction;
@@ -22,6 +25,8 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.util.NotificationUtil;
+
+import it.unimi.dsi.fastutil.Pair;
 
 public class RotateBlockInteraction extends SimpleBlockInteraction {
 
@@ -39,6 +44,11 @@ public class RotateBlockInteraction extends SimpleBlockInteraction {
         VERTICAL;
     }
 
+    public enum Direction {
+        CLOCKWISE,
+        COUNTER;
+    }
+
     private RotateType rotateType = RotateType.HORIZONTAL;
 
     @Override
@@ -53,8 +63,11 @@ public class RotateBlockInteraction extends SimpleBlockInteraction {
 
         // 0. Extract data from context
         var ref = context.getEntity();
-        var store = ref.getStore();
-        PlayerRef playerRef = store.getComponent(ref, PlayerRef.getComponentType());
+        PlayerRef playerRef = commandBuffer.getComponent(ref, PlayerRef.getComponentType());
+        var movementStates = commandBuffer.getComponent(ref, MovementStatesComponent.getComponentType());
+        boolean isCrouching = Optional.ofNullable(movementStates)
+                .map(MovementStatesComponent::getMovementStates)
+                .map(ms -> ms.crouching).orElse(false);
 
         // 1. Check if the block is rotatable
         BlockType targetBlockType = world.getBlockType(targetBlock);
@@ -74,20 +87,8 @@ public class RotateBlockInteraction extends SimpleBlockInteraction {
 
         // 2.2 Calculate the new rotation index
         int rotationIndex = world.getBlockRotationIndex(targetBlock.x, targetBlock.y, targetBlock.z);
-        RotationTuple rotationTuple = RotationTuple.get(rotationIndex);
-
-        var newRotationTuple = switch (rotateType) {
-            case HORIZONTAL -> RotationTuple.of(
-                    rotationTuple.yaw().subtract(Rotation.Ninety),
-                    rotationTuple.pitch(),
-                    rotationTuple.roll());
-            case VERTICAL -> RotationTuple.of(
-                    rotationTuple.yaw(),
-                    rotationTuple.pitch(),
-                    rotationTuple.roll().subtract(Rotation.Ninety));
-            case RESET -> RotationTuple.of(Rotation.None, Rotation.None, Rotation.None);
-        };
-        var newRotationIndex = newRotationTuple.index();
+        var newRotation = calculateNewRotationIndex(targetBlock, rotationIndex, isCrouching);
+        int newRotationIndex = newRotation.right();
 
         // 2.3 Set the block with the new rotation index
         int targetBlockIndex = world.getBlock(targetBlock);
@@ -95,6 +96,57 @@ public class RotateBlockInteraction extends SimpleBlockInteraction {
                 targetBlock.x, targetBlock.y, targetBlock.z,
                 targetBlockIndex, targetBlockType,
                 newRotationIndex, 0, 0);
+    }
+
+    /**
+     * Calculates the new rotation index based on the current rotation index, rotate
+     * type, and direction.
+     * 
+     * @param targetBlock
+     * @param rotationIndex
+     * @param isCrouching
+     * @return
+     */
+    private Pair<RotationTuple, Integer> calculateNewRotationIndex(
+            Vector3i targetBlock,
+            int rotationIndex,
+            boolean isCrouching) {
+
+        RotationTuple rotationTuple = RotationTuple.get(rotationIndex);
+        Direction direction = (!isCrouching) ? Direction.CLOCKWISE : Direction.COUNTER;
+
+        RotationTuple newRotationTuple = rotate(rotationTuple, rotateType, direction);
+        int newRotationIndex = newRotationTuple.index();
+
+        return Pair.of(newRotationTuple, newRotationIndex);
+    }
+
+    /**
+     * Rotates the given rotation tuple based on the rotate type and direction.
+     * 
+     * @param currentRotation
+     * @param rotateType
+     * @param direction
+     * @return
+     */
+    private RotationTuple rotate(RotationTuple currentRotation, RotateType rotateType, Direction direction) {
+        Rotation delta = direction == Direction.CLOCKWISE ? Rotation.None.subtract(Rotation.Ninety) : Rotation.Ninety;
+        RotationTuple newRotation = RotationTuple.of(
+                currentRotation.yaw(),
+                currentRotation.pitch(),
+                currentRotation.roll());
+
+        return switch (rotateType) {
+            case HORIZONTAL -> RotationTuple.of(
+                    newRotation.yaw().add(delta),
+                    newRotation.pitch(),
+                    newRotation.roll());
+            case VERTICAL -> RotationTuple.of(
+                    newRotation.yaw(),
+                    newRotation.pitch(),
+                    newRotation.roll().add(delta));
+            case RESET -> RotationTuple.of(Rotation.None, Rotation.None, Rotation.None);
+        };
     }
 
     @Override

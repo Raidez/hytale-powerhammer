@@ -10,6 +10,21 @@ for almost the same cost as an iron hammer.
 
 ## Usage
 
+### Rotating blocks
+
+When you press the ability 2 (default: E) while looking at a block,
+the Power Hammer will rotate it by 90 degrees horizontally.
+
+Same way, when you press the ability 3 (default: R) while looking at a block,
+the Power Hammer will rotate it by 90 degrees vertically.
+
+You can crouch to rotate counter-clockwise instead of clockwise.
+
+See the following video for a demonstration:
+[https://youtu.be/szX_ifRMnMM](https://youtu.be/szX_ifRMnMM)
+
+### Swapping blocks
+
 When left-clicking on a allowed block,
 the Power Hammer will swap it with the first **different** allowed block in the hotbar.
 
