@@ -2,9 +2,7 @@ package dev.raidez.interactions;
 
 import java.util.Optional;
 
-import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
-import com.hypixel.hytale.codec.codecs.EnumCodec;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3i;
@@ -31,25 +29,13 @@ import it.unimi.dsi.fastutil.Pair;
 public class RotateBlockInteraction extends SimpleBlockInteraction {
 
     public static final BuilderCodec<RotateBlockInteraction> CODEC = BuilderCodec
-            .builder(RotateBlockInteraction.class, RotateBlockInteraction::new)
-            .append(new KeyedCodec<>("RotationType", new EnumCodec<>(RotateType.class)),
-                    (data, value) -> data.rotateType = value,
-                    (data) -> data.rotateType)
-            .add()
+            .builder(RotateBlockInteraction.class, RotateBlockInteraction::new, SimpleBlockInteraction.CODEC)
             .build();
 
     public enum RotateType {
-        RESET,
         HORIZONTAL,
         VERTICAL;
     }
-
-    public enum Direction {
-        CLOCKWISE,
-        COUNTER;
-    }
-
-    private RotateType rotateType = RotateType.HORIZONTAL;
 
     @Override
     protected void interactWithBlock(
@@ -113,24 +99,23 @@ public class RotateBlockInteraction extends SimpleBlockInteraction {
             boolean isCrouching) {
 
         RotationTuple rotationTuple = RotationTuple.get(rotationIndex);
-        Direction direction = (!isCrouching) ? Direction.CLOCKWISE : Direction.COUNTER;
+        RotateType rotateType = (!isCrouching) ? RotateType.HORIZONTAL : RotateType.VERTICAL;
 
-        RotationTuple newRotationTuple = rotate(rotationTuple, rotateType, direction);
+        RotationTuple newRotationTuple = rotate(rotationTuple, rotateType);
         int newRotationIndex = newRotationTuple.index();
 
         return Pair.of(newRotationTuple, newRotationIndex);
     }
 
     /**
-     * Rotates the given rotation tuple based on the rotate type and direction.
+     * Rotates the given rotation tuple based on the rotate type.
      * 
      * @param currentRotation
      * @param rotateType
-     * @param direction
      * @return
      */
-    private RotationTuple rotate(RotationTuple currentRotation, RotateType rotateType, Direction direction) {
-        Rotation delta = direction == Direction.CLOCKWISE ? Rotation.None.subtract(Rotation.Ninety) : Rotation.Ninety;
+    private RotationTuple rotate(RotationTuple currentRotation, RotateType rotateType) {
+        Rotation delta = Rotation.None.subtract(Rotation.Ninety);
         RotationTuple newRotation = RotationTuple.of(
                 currentRotation.yaw(),
                 currentRotation.pitch(),
@@ -145,7 +130,7 @@ public class RotateBlockInteraction extends SimpleBlockInteraction {
                     newRotation.yaw(),
                     newRotation.pitch(),
                     newRotation.roll().add(delta));
-            case RESET -> RotationTuple.of(Rotation.None, Rotation.None, Rotation.None);
+            default -> RotationTuple.of(Rotation.None, Rotation.None, Rotation.None);
         };
     }
 

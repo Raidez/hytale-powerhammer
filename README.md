@@ -12,13 +12,11 @@ for almost the same cost as an iron hammer.
 
 ### Rotating blocks
 
-When you press the ability 2 (default: E) while looking at a block,
-the Power Hammer will rotate it by 90 degrees horizontally.
+You press right-click on a block to rotate it horizontally,
+and ctrl + right-click to rotate it vertically.
 
 Same way, when you press the ability 3 (default: R) while looking at a block,
-the Power Hammer will rotate it by 90 degrees vertically.
-
-You can crouch to rotate counter-clockwise instead of clockwise.
+it reset the block rotation to its default state.
 
 See the following video for a demonstration:
 [https://youtu.be/szX_ifRMnMM](https://youtu.be/szX_ifRMnMM)

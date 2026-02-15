@@ -6,6 +6,7 @@ import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.util.Config;
 
+import dev.raidez.interactions.ResetRotationInteraction;
 import dev.raidez.interactions.RotateBlockInteraction;
 import dev.raidez.interactions.SwapBlockInteraction;
 
@@ -31,6 +32,8 @@ public class PowerHammerPlugin extends JavaPlugin {
                 .register("SwapBlock", SwapBlockInteraction.class, SwapBlockInteraction.CODEC);
         getCodecRegistry(Interaction.CODEC)
                 .register("RotateBlock", RotateBlockInteraction.class, RotateBlockInteraction.CODEC);
+        getCodecRegistry(Interaction.CODEC)
+                .register("ResetRotation", ResetRotationInteraction.class, ResetRotationInteraction.CODEC);
     }
 
     public static PowerHammerConfig getConfig() {

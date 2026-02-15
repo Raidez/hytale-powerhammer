@@ -34,38 +34,33 @@
     "Primary": {
       "Interactions": [
         {
-          "Type": "SwapBlock"
+          "Type": "SwapBlock",
+          "RunTime": 0.1,
+          "Effects": {
+            "ItemAnimationId": "Mine"
+          }
         }
       ]
     },
     "Secondary": {
       "Interactions": [
         {
-          "Type": "CycleBlockGroup"
-        }
-      ]
-    },
-    "Ability1": {
-      "Interactions": [
-        {
           "Type": "RotateBlock",
-          "RotationType": "Reset"
-        }
-      ]
-    },
-    "Ability2": {
-      "Interactions": [
-        {
-          "Type": "RotateBlock",
-          "RotationType": "Horizontal"
+          "RunTime": 0.1,
+          "Effects": {
+            "ItemAnimationId": "Mine"
+          }
         }
       ]
     },
     "Ability3": {
       "Interactions": [
         {
-          "Type": "RotateBlock",
-          "RotationType": "Vertical"
+          "Type": "ResetRotation",
+          "RunTime": 0.1,
+          "Effects": {
+            "ItemAnimationId": "Mine"
+          }
         }
       ]
     }
