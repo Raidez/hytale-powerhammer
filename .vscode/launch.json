@@ -1,0 +1,16 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Hytale - Start modded server",
+            "request": "launch",
+            "mainClass": "com.hypixel.hytale.Main",
+            "args": "--allow-op --assets=/home/raidez/.var/app/com.hypixel.HytaleLauncher/data/Hytale/install/release/package/game/latest/Assets.zip",
+            "cwd": "${workspaceFolder}/.run"
+        }
+    ]
+}

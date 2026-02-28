@@ -33,8 +33,9 @@ build/
 !**/src/test/**/build/
 
 ### VS Code ###
-.vscode/
-.run/
+!.vscode
+.vscode/settings.json
+.run
 
 ### Mac OS ###
 .DS_Store
